@@ -264,9 +264,9 @@ female_count = pymoli_df[all_female ]['SN'].nunique()
 other_count = pymoli_df[all_other]['SN'].nunique()
 gender_count = pd.Series([male_count, female_count, other_count], index=gender_index)
 
-male_perc = round(male_count/player_count*100,2)
-female_perc = round(female_count/player_count*100,2)
-other_perc = round(other_count/player_count*100,2)
+male_perc = round(male_count/player_count * 100, 2)
+female_perc = round(female_count/player_count * 100, 2)
+other_perc = round(other_count/player_count * 100, 2)
 gender_perc = pd.Series([male_perc, female_perc, other_perc], index=gender_index)
 
 gender_df = pd.DataFrame({'Total Count':gender_count, 'Percentage of Players':gender_perc})
@@ -274,53 +274,6 @@ gender_df = pd.DataFrame({'Total Count':gender_count, 'Percentage of Players':ge
 gender_df['Percentage of Players']=gender_df['Percentage of Players'].map('{:,.2f}%'.format)
 gender_df
 ```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Percentage of Players</th>
-      <th>Total Count</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Male</th>
-      <td>81.15%</td>
-      <td>465</td>
-    </tr>
-    <tr>
-      <th>Female</th>
-      <td>17.45%</td>
-      <td>100</td>
-    </tr>
-    <tr>
-      <th>Other / Non-Disclosed</th>
-      <td>1.40%</td>
-      <td>8</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
@@ -355,9 +308,9 @@ total_other_price = pymoli_df[all_other]["Price"].sum()
 
 total_purchase_value_per_gender = pd.Series([total_male_price, total_female_price, total_other_price],index=gender_index)
 
-normalized_male = round(total_purchases/male_count,2)
-normalized_female = round(total_purchases/female_count,2)
-normalized_totals = round(total_purchases/other_count,2)
+normalized_male = round(total_male_price/purchase_count_male,2)
+normalized_female = round(total_female_price/purchase_count_female,2)
+normalized_totals = round(total_other_price/purchase_count_other,2)
 
 normalized_per_gender = pd.Series([normalized_male, normalized_female, normalized_totals], index=gender_index)
 
@@ -402,21 +355,21 @@ purchasing_analysis_df
     <tr>
       <th>Male</th>
       <td>$2.95</td>
-      <td>1.68</td>
+      <td>4.02</td>
       <td>465</td>
       <td>$1,867.68</td>
     </tr>
     <tr>
       <th>Female</th>
       <td>$2.82</td>
-      <td>7.80</td>
+      <td>3.83</td>
       <td>100</td>
       <td>$382.91</td>
     </tr>
     <tr>
       <th>Other / Non-Disclosed</th>
       <td>$3.25</td>
-      <td>97.50</td>
+      <td>4.47</td>
       <td>8</td>
       <td>$35.74</td>
     </tr>
@@ -432,23 +385,9 @@ pymoli_df["Age"].max()
 ```
 
 
-
-
-    45
-
-
-
-
 ```python
 pymoli_df["Age"].min()
 ```
-
-
-
-
-    7
-
-
 
 
 ```python
@@ -464,7 +403,7 @@ bins = [0, 10, 14, 19, 24, 29, 34, 39, 100]
 # the outter item is inclusive on the right
 
 # Create labels for these bins
-bins_labels = ["> 10", "10 to 14", "15 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40+"]
+bins_labels = ["< 10", "10 to 14", "15 to 19", "20 to 24", "25 to 29", "30 to 34", "35 to 39", "40+"]
 
 # Slice the data and place it into bins
 pd.cut(pymoli_df["Age"], bins, labels=bins_labels)
@@ -569,11 +508,10 @@ purchase_by_age = pymoli_df.groupby('Age Demographics')
 purchase_count = purchase_by_age['Price'].count()
 average_purchase = purchase_by_age['Price'].mean()
 total_age_purchase = purchase_by_age['Price'].sum()
-#normalized_totals = total_age_purchase / unique purchases
+#normalized_totals = amount spent per age group / unique number of people per age group nunique
 
-# Still need to format final value with $ .2f********
 
-age_demographics_df = pd.DataFrame({'Purchase Count':purchase_count, 'Average Purchase Price':average_purchase,'Total Purchase Value':total_age_purchase}, index=age_index)
+age_demographics_df = pd.DataFrame({'Purchase Count':purchase_count, 'Average Purchase Price':average_purchase,'Total Purchase Value':total_age_purchase})
 
 age_demographics_df['Average Purchase Price']=age_demographics_df['Average Purchase Price'].map('${:,.2f}'.format)
 age_demographics_df['Total Purchase Value']=age_demographics_df['Total Purchase Value'].map('${:,.2f}'.format)
@@ -606,10 +544,16 @@ age_demographics_df
       <th>Purchase Count</th>
       <th>Total Purchase Value</th>
     </tr>
+    <tr>
+      <th>Age Demographics</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
   </thead>
   <tbody>
     <tr>
-      <th>&gt; 10</th>
+      <th>&lt; 10</th>
       <td>$3.02</td>
       <td>32</td>
       <td>$96.62</td>
@@ -775,92 +719,19 @@ item_count=pd.DataFrame(pymoli_df.groupby(['Item ID','Item Name']) ["Price"].cou
 item_mean=pd.DataFrame(pymoli_df.groupby(["Item ID", "Item Name"])["Price"].mean())
 item_total=pd.DataFrame(pymoli_df.groupby(["Item ID", "Item Name"])["Price"].sum())
 
-
 #create dataframe with groupby objects
 top_items=pd.DataFrame(
     {"Purchase Count": item_count['Price'], 
-     "Item Price": (item_mean['Price']).map("${:,.2f}".format),
-     "Total Purchase Value": (item_total['Price']).map("${:,.2f}".format)})
+     "Item Price": item_mean['Price'],
+     "Total Purchase Value": item_total['Price']})
+
 top_items=top_items.sort_values(["Purchase Count"], ascending=False)
+
+top_items['Item Price']=top_items['Item Price'].map('${:,.2f}'.format)
+top_items['Total Purchase Value']=top_items['Total Purchase Value'].map('${:,.2f}'.format)
 
 top_items.head()
 ```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th></th>
-      <th>Item Price</th>
-      <th>Purchase Count</th>
-      <th>Total Purchase Value</th>
-    </tr>
-    <tr>
-      <th>Item ID</th>
-      <th>Item Name</th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>39</th>
-      <th>Betrayal, Whisper of Grieving Widows</th>
-      <td>$2.35</td>
-      <td>11</td>
-      <td>$25.85</td>
-    </tr>
-    <tr>
-      <th>84</th>
-      <th>Arcane Gem</th>
-      <td>$2.23</td>
-      <td>11</td>
-      <td>$24.53</td>
-    </tr>
-    <tr>
-      <th>31</th>
-      <th>Trickster</th>
-      <td>$2.07</td>
-      <td>9</td>
-      <td>$18.63</td>
-    </tr>
-    <tr>
-      <th>175</th>
-      <th>Woeful Adamantite Claymore</th>
-      <td>$1.24</td>
-      <td>9</td>
-      <td>$11.16</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <th>Serenity</th>
-      <td>$1.49</td>
-      <td>9</td>
-      <td>$13.41</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
@@ -879,15 +750,19 @@ item_mean=pd.DataFrame(pymoli_df.groupby(["Item ID", "Item Name"])["Price"].mean
 item_total=pd.DataFrame(pymoli_df.groupby(["Item ID", "Item Name"])["Price"].sum())
 
 #create dataframe with groupby objects
+
 top_profit=pd.DataFrame(
     {"Purchase Count": item_count['Price'], 
-     "Item Price": (item_mean['Price']).map("${:,.2f}".format),
-     "Total Purchase Value": (item_total['Price'])})
+     "Item Price": item_mean['Price'],
+     "Total Purchase Value": item_total['Price']})
 
-top_profit = top_profit.sort_values(["Total Purchase Value"], ascending=False)
+top_profit=top_profit.sort_values(["Total Purchase Value"], ascending=False)
 
+top_profit['Item Price']=top_profit['Item Price'].map('${:,.2f}'.format)
 top_profit['Total Purchase Value']=top_profit['Total Purchase Value'].map('${:,.2f}'.format)
+
 top_profit.head()
+
 #most_profit=pymoli_df.groupby(['Item ID', 'Item Name', 'Price']).Price.sum().nlargest(5)
 ```
 
@@ -966,3 +841,10 @@ top_profit.head()
 </div>
 
 
+
+Observable Trends:
+
+1) People between 20 to 24 years-old tend to purchase more often game items
+2) The majority of players is male
+3) Although non-identified gender showed the highest average purchase, male players generated the highest revenue to this game industry
+4) Although the average purchase price of an item is $2.93, the most profitable items are valued between $3.61 and $4.95.
