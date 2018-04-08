@@ -1,0 +1,5 @@
+Observable Trends:
+1) People between 20 to 24 years-old tend to purchase more often game items 
+2) The majority of players is male 
+3) Although non-identified gender showed the highest average purchase, male players generated the highest revenue to this game industry 
+4) Although the average purchase price of an item is $2.93, the most profitable items are valued between $3.61 and $4.95.
